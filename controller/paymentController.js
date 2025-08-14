@@ -2,6 +2,7 @@ const catchAsync = require("../utiles/catchAsync");
 const { Cashfree, CFEnvironment } = require("cashfree-pg");
 const Event = require("../model/eventModel");
 const Booking = require("../model/bookinModel");
+const AppError = require("../utiles/appError");
 
 let cashfree = new Cashfree(
   CFEnvironment.SANDBOX,
@@ -14,8 +15,12 @@ exports.craetePayment = async (req, res, next) => {
     const { firstName, lastName, email } = req.user;
     const { quantity } = req.body;
     const event = await Event.findById({ _id: req.params.eventID }).select(
-      "price"
+      "price tickets"
     );
+
+    if (event.tickets < quantity) {
+      next(new AppError(`${quantity} tickets not avilable`, 400));
+    }
     const amount = quantity * event.price;
     const orderId = await `ETA_u1234_e1234_${Date.now()}`;
 
@@ -82,7 +87,17 @@ exports.verifyPayment = catchAsync(async (req, res, next) => {
       bookingData.booking_status = "confirmed";
     }
     const booking = await Booking.create(bookingData);
-    res.json({ data: { recipt: verification.data, booking } });
+
+    const event = await Event.findById(event_id);
+
+    const ticketsLeft = Number(event.tickets) - Number(quantity);
+    event.tickets = ticketsLeft;
+    await event.save();
+
+    res.json({
+      status: "success",
+      data: { recipt: verification.data, booking },
+    });
   } catch (err) {
     // console.log(err.message);
     res.status(400).json({ status: "success", err: err.message });

@@ -107,7 +107,7 @@ exports.getUserBookings = catchAsync(async (req, res, next) => {
       path: "eventID",
       select: "title price eventDate location",
     })
-    .select("person booking_status")
+    .select("person booking_status bookingSummary.total")
     .sort("-createdAt");
 
   res.status(200).json({
