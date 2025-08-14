@@ -5,11 +5,18 @@ const {
   getEvent,
   updateEvent,
   deleteEvent,
+  featuredEvent,
 } = require("../controller/eventController");
+const { authentication } = require("../controller/authController");
 
 const router = express.Router();
+router.get("/featured-events", featuredEvent);
+router.get("/", getAllEvents);
+router.get("/:id", getEvent);
 
-router.route("/").get(getAllEvents).post(createEvent);
-router.route("/:id").get(getEvent).patch(updateEvent).delete(deleteEvent);
+router.use(authentication);
+router.post("/", createEvent);
+router.patch("/id", updateEvent);
+router.delete("/id", deleteEvent);
 
 module.exports = router;

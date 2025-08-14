@@ -23,20 +23,22 @@ exports.getBooking = async (req, res, next) => {
 };
 
 exports.createBooking = async (req, res, next) => {
-  const { user, eventID, paymentSummay, tickets } = req.body;
-  const orderID = `order#${Date.now()}`;
-  const paymentID = `payment#ABC${Date.now()}`;
-  const paymentDate = new Date().toISOString();
+  const { _id } = req.user;
+  const { eventID, bookingSummary } = req.body;
+
   const bookingData = {
-    user,
     eventID,
-    tickets,
-    paymentSummay: {
-      paymentDate: paymentDate,
-      subTotal: paymentSummay.subTotal,
-      total: paymentSummay.total,
-      orderID: orderID,
-      paymentID: paymentID,
+    user: _id,
+    booking_status,
+    person: bookingSummary.qauntity,
+    bookingSummary: {
+      orderID: bookingSummary.orderID,
+      eventPrice: bookingSummary.eventPrice,
+      quantity: bookingSummary.quantity,
+      total: bookingSummary.total,
+      paymentDate: new Date(),
+      customer_name: bookingSummary.customer_name,
+      customer_email: bookingSummary.customer_email,
     },
   };
   const booking = await Booking.create(bookingData);

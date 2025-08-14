@@ -3,7 +3,7 @@ module.exports = (err, req, res, next) => {
     status: "fail",
     error: {
       message: err.message,
-      stack: err.stack,
+      name: err.name,
     },
   });
 };
